@@ -1,12 +1,30 @@
 var columnify = require('columnify');
+console.log("HELP PROCESS", process.argv);
+
+var programInfo = {
+    version: '0.0.0',
+    usage_message: 'usage:',
+};
 
 var help = {
-    shortcut: '-h',
     description: 'display usage information',
     action: displayHelp
 };
 
+Object.defineProperty(help, "version", {
+    enumerable: false,
+    get: function() {
+        return this.opts.action;
+    },
+    set: function(fn) {
+        this.opts.action = fn;
+    }
+});
+
+
 function displayHelp(err, value) {
+
+    console.log("HELP CALLED");
 
     var display = [],
         flag;
@@ -42,3 +60,6 @@ function renderFlagDetails(flag_name) {
 
     return str;
 }
+
+
+module.exports = exports = help;
