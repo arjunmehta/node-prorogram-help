@@ -1,6 +1,7 @@
 var columnify = require('columnify');
 console.log("HELP PROCESS", process.argv);
 
+
 var programInfo = {
     version: '0.0.0',
     usage_message: 'usage:',
@@ -14,10 +15,10 @@ var help = {
 Object.defineProperty(help, "version", {
     enumerable: false,
     get: function() {
-        return this.opts.action;
+        return programInfo.version;
     },
-    set: function(fn) {
-        this.opts.action = fn;
+    set: function(module) {
+        programInfo.version = pkginfo.version;
     }
 });
 
