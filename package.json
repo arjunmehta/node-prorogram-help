@@ -1,0 +1,32 @@
+{
+  "name": "prorogram-help",
+  "version": "1.0.0",
+  "description": "auto generate usage info when using the prorogram module",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arjunmehta/node-prorogram-help.git"
+  },
+  "keywords": [
+    "commander",
+    "help",
+    "prorogram",
+    "program",
+    "command",
+    "line",
+    "usage",
+    "information"
+  ],
+  "author": "Arjun Mehta",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/arjunmehta/node-prorogram-help/issues"
+  },
+  "homepage": "https://github.com/arjunmehta/node-prorogram-help",
+  "dependencies": {
+    "columnify": "~1.3.2"
+  }
+}
