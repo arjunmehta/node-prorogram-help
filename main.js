@@ -4,6 +4,7 @@ console.log("HELP PROCESS", process.argv);
 
 var programInfo = {
     version: '0.0.0',
+    module_name: 'no_name'
     usage_message: 'usage:',
 };
 
@@ -32,7 +33,7 @@ function displayHelp(err, value) {
 
     var prorogram = this;
 
-    console.log('\n  ' + pjson.name + ' v' + pjson.version);
+    console.log('\n  ' + programInfo.name + ' v' + programInfo.version);
     console.log('  Usage: node example/example.js [options]\n');
 
     for (var flag_name in prorogram.options) {
