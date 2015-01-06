@@ -43,7 +43,7 @@ prorogram.option('--optionC', {
 
 var run = prorogram.command('run', {
     action: function(err, args) {
-        console.log("run executed", args);
+        // console.log("run executed", args);
     }
 });
 

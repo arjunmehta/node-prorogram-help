@@ -69,12 +69,14 @@ function displayHelp(err, value, program) {
         display.push('\n' + (this.name ? this.name + ' ' : '') + (this.opts.version ? 'v' + this.opts.version : ''));
     }
 
-    display.push('\nUsage: ' + current_filename + ' [command]' + ' [options]\n');
+    display.push('\nUsage: ' + current_filename + ' [command]' + ' [options]');
 
-    display.push(renderOptionUsage(display, program) + '\n');
-    display.push(renderCommandUsage(display, program) + '\n');
+    if (Object.keys(program.options).length > 0) display.push(renderOptionUsage(display, program));
+    if (Object.keys(program.commands).length > 0) display.push(renderCommandUsage(display, program));
 
-    console.log(display.join("\n"));
+
+
+    console.log(display.join("\n") + '\n');
 }
 
 
@@ -82,10 +84,7 @@ function renderCommandUsage(display, program) {
 
     var command, commandDisplay = [];
 
-
-    if (Object.keys(program.commands).length > 0) {
-        display.push('COMMANDS');
-    }
+    display.push('\nCOMMANDS');
 
     for (var command_name in program.commands) {
         command = program.commands[command_name];
@@ -109,14 +108,12 @@ function renderOptionUsage(display, program) {
 
     var flag, optionDisplay = [];
 
-    if (Object.keys(program.options).length > 0) {
-        display.push('OPTIONS');
-    }
+
+    display.push('\nOPTIONS');
 
     for (var flag_name in program.options) {
         flag = program.options[flag_name];
         optionDisplay.push({
-
             flag: renderFlagDetails(flag, flag_name),
             description: flag.description
         });
