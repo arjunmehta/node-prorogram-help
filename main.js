@@ -1,60 +1,150 @@
 var columnify = require('columnify');
-console.log("HELP PROCESS", process.argv);
+var path = require('path');
+
+var current_path = path.dirname(require.main.filename),
+    current_filename = path.basename(process.argv[1], '.js'),
+    pjson;
 
 
-var programInfo = {
-    version: '0.0.0',
-    module_name: 'no_name'
-    usage_message: 'usage:',
-};
+try {
+    pjson = require(current_path + '/package.json');
+} catch (e) {}
 
-var help = {
-    description: 'display usage information',
-    action: displayHelp
-};
 
-Object.defineProperty(help, "version", {
-    enumerable: false,
+function HelpOption(opts) {
+
+    opts = opts || {};
+    this.opts = opts;
+
+    this.description = opts.description || 'display usage information';
+    this.action = opts.action || displayHelp;
+    this.shortcut = opts.shortcut || '-h';
+
+    this.opts.version = opts.version || pjson ? pjson.version : null;
+    this.opts.name = opts.name || pjson ? pjson.name : null;
+
+    return this;
+}
+
+Object.defineProperty(HelpOption.prototype, "version", {
+    enumerable: true,
     get: function() {
-        return programInfo.version;
+        return {
+            shortcut: '-V',
+            description: 'display current version',
+            action: displayVersion
+        };
     },
-    set: function(module) {
-        programInfo.version = pkginfo.version;
+    set: function(version) {
+        this.opts.version = version;
     }
 });
 
+Object.defineProperty(HelpOption.prototype, "name", {
+    enumerable: true,
+    get: function() {
+        return this.opts.name;
+    },
+    set: function(name) {
+        this.opts.name = name;
+    }
+});
 
-function displayHelp(err, value) {
+HelpOption.prototype.set = function(opts) {
+    opts = opts || {};
 
-    console.log("HELP CALLED");
+    for (var opt in opts) {
+        this[opt] = opts[opt];
+    }
 
-    var display = [],
-        flag;
+    return this;
+};
 
-    var prorogram = this;
 
-    console.log('\n  ' + programInfo.name + ' v' + programInfo.version);
-    console.log('  Usage: node example/example.js [options]\n');
+function displayHelp(err, value, program) {
 
-    for (var flag_name in prorogram.options) {
-        flag = prorogram.options[flag_name];
-        display.push({
-            ' ': ' ',
-            flag: prorogram.renderFlagDetails(flag_name),
+    var display = [];
+
+    if (program.opts.root === true) {
+        display.push('\n' + (this.name ? this.name + ' ' : '') + (this.opts.version ? 'v' + this.opts.version : ''));
+    }
+
+    display.push('\nUsage: ' + current_filename + ' [command]' + ' [options]\n');
+
+    display.push(renderOptionUsage(display, program) + '\n');
+    display.push(renderCommandUsage(display, program) + '\n');
+
+    console.log(display.join("\n"));
+}
+
+
+function renderCommandUsage(display, program) {
+
+    var command, commandDisplay = [];
+
+
+    if (Object.keys(program.commands).length > 0) {
+        display.push('COMMANDS');
+    }
+
+    for (var command_name in program.commands) {
+        command = program.commands[command_name];
+        commandDisplay.push({
+            command: renderCommandDetails(command, command_name),
+            description: command.description
+        });
+    }
+
+    return columnify(commandDisplay, {
+        columnSplitter: '  ',
+        minWidth: 40,
+        showHeaders: false,
+        dataTransform: function(item) {
+            return ' ' + item;
+        }
+    });
+}
+
+function renderOptionUsage(display, program) {
+
+    var flag, optionDisplay = [];
+
+    if (Object.keys(program.options).length > 0) {
+        display.push('OPTIONS');
+    }
+
+    for (var flag_name in program.options) {
+        flag = program.options[flag_name];
+        optionDisplay.push({
+
+            flag: renderFlagDetails(flag, flag_name),
             description: flag.description
         });
     }
 
-    console.log(columnify(display, {
-        columnSplitter: '  '
-    }), "\n");
+    return columnify(optionDisplay, {
+        columnSplitter: '  ',
+        minWidth: 40,
+        showHeaders: false,
+        dataTransform: function(item) {
+            return ' ' + item;
+        }
+    });
 }
 
 
-function renderFlagDetails(flag_name) {
+function displayVersion(err, value, program) {
 
-    var flag = this.options[flag_name],
-        str = '';
+    var help = program.options.help;
+    var display_header = '\n  ' + (help.name ? help.name + ' ' : '') + (help.opts.version ? 'v' + help.opts.version : '') + '\n';
+
+    console.log(display_header);
+}
+
+
+function renderFlagDetails(flag, flag_name) {
+
+    var str = '';
 
     str += flag.shortcut ? '-' + flag.shortcut + ', ' : '    ';
     str += '--' + flag_name;
@@ -63,5 +153,19 @@ function renderFlagDetails(flag_name) {
     return str;
 }
 
+function renderCommandDetails(command, command_name) {
 
-module.exports = exports = help;
+    var str = '';
+
+    str += command_name;
+    str += command.alias ? '|' + command.alias : '';
+    str += ' ' + (command.required ? '<' + command.required + '> ' : (command.optional ? '[' + command.optional + '] ' : ' '));
+
+    return str;
+}
+
+
+
+
+
+module.exports = exports = new HelpOption();
