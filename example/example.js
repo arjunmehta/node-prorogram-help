@@ -12,13 +12,13 @@ var help = require('../main');
 //     name: 'multiview'
 // });
 
-prorogram
-    .command('*', {includeRoot: true})
-    .option('--help', help.set({
-        version: '0.0.3',
-        name: 'multiview',
-        handleError: true
-    }));
+// prorogram
+//     .command('*', {includeRoot: true})
+//     .option('--help', help.set({
+//         version: '0.0.3',
+//         name: 'multiview',
+//         handleError: true
+//     }));
 
 prorogram.required = 'something';
 
@@ -45,12 +45,17 @@ prorogram.option('--optionC', {
 
 var run = prorogram.command('run', {
     action: function(args, program) {
-        console.log("run executed", args);
+        console.log("run executed", args, program.flagged);
     },
     required: 'file path'
 });
 
 
+run.option('--help', help.set({
+    version: '0.0.3',
+    name: 'multiview',
+    handleError: true
+}));
 
 run.option('--optionE');
 run.option('--optionF', {

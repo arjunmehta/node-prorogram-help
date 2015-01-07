@@ -110,9 +110,9 @@ HelpOption.prototype.displayHelp = function(value, program) {
 };
 
 
-HelpOption.prototype.errorHandler = function(err, arg, program) {
+HelpOption.prototype.errorHandler = function(err, args, program) {
     if (!did_output) {
-        console.log('\n' + err);
+        if (!args[this.flag_name] && !args[this.shortcut]) console.log('\n' + err);
         this.displayHelp(null, program);
     }
 };
