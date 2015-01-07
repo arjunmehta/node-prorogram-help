@@ -3,7 +3,7 @@ var path = require('path');
 
 var current_path = path.dirname(require.main.filename),
     current_filename = path.basename(process.argv[1], '.js'),
-    pjson;
+    pjson, did_output = false;
 
 
 try {
@@ -13,15 +13,39 @@ try {
 
 function HelpOption(opts) {
 
+    var helpFlag = this;
+
     opts = opts || {};
     this.opts = opts;
 
-    this.description = opts.description || 'display usage information';
-    this.action = opts.action || displayHelp;
+    this.description = opts.description || 'Display usage information';
+    this.action = opts.action || this.displayHelp;
+    this.error = opts.error || this.errorHandler;
     this.shortcut = opts.shortcut || '-h';
 
     this.opts.version = opts.version || pjson ? pjson.version : null;
     this.opts.name = opts.name || pjson ? pjson.name : null;
+    this.opts.handleError = opts.handleError || false;
+
+    this.added = function(program, flag) {
+
+        // console.log('helpFlag', helpFlag);
+
+        if (helpFlag.opts.version) {
+            program.option('--version', {
+                shortcut: '-V',
+                description: 'Display current version',
+                action: displayVersion
+            });
+        }
+
+        if (helpFlag.opts.handleError === true) {
+            program.opts.error = function(err, value, program) {
+                helpFlag.error(err, value, program);
+            };
+            // console.log("TRYING TO HANDLE THE ERROR", program.opts);
+        }
+    };
 
     return this;
 }
@@ -29,14 +53,12 @@ function HelpOption(opts) {
 Object.defineProperty(HelpOption.prototype, "version", {
     enumerable: true,
     get: function() {
-        return {
-            shortcut: '-V',
-            description: 'display current version',
-            action: displayVersion
-        };
+        return this.opts.version;
+
     },
     set: function(version) {
         this.opts.version = version;
+
     }
 });
 
@@ -50,33 +72,73 @@ Object.defineProperty(HelpOption.prototype, "name", {
     }
 });
 
+Object.defineProperty(HelpOption.prototype, "handleError", {
+    enumerable: true,
+    get: function() {
+        return this.opts.handleError;
+    },
+    set: function(bool) {
+        this.opts.handleError = bool;
+    }
+});
+
 HelpOption.prototype.set = function(opts) {
     opts = opts || {};
 
     for (var opt in opts) {
         this[opt] = opts[opt];
     }
-
     return this;
 };
 
 
-function displayHelp(err, value, program) {
+HelpOption.prototype.displayHelp = function(value, program) {
 
     var display = [];
 
-    if (program.opts.root === true) {
+    if (program.parent_command === undefined) {
         display.push('\n' + (this.name ? this.name + ' ' : '') + (this.opts.version ? 'v' + this.opts.version : ''));
     }
 
-    display.push('\nUsage: ' + current_filename + ' [command]' + ' [options]');
+    display.push(buildUsageString(program));
 
     if (Object.keys(program.options).length > 0) display.push(renderOptionUsage(display, program));
     if (Object.keys(program.commands).length > 0) display.push(renderCommandUsage(display, program));
 
+    console.log(display.join('\n') + '\n');
+    did_output = true;
+};
 
 
-    console.log(display.join("\n") + '\n');
+HelpOption.prototype.errorHandler = function(err, arg, program) {
+    if (!did_output) {
+        console.log('\n' + err);
+        this.displayHelp(null, program);
+    }
+};
+
+
+function buildUsageString(program) {
+
+    var str = '';
+
+    if (program.required) {
+        str += '<' + program.required + '> ';
+    } else if (program.optional) {
+        str += '[' + program.optional + '] ';
+    }
+
+    if (Object.keys(program.options).length > 0) str += '[options]';
+
+    while (program.parent_command !== undefined) {
+        str = program.command_name + ' ' + str;
+        program = program.parent_command;
+    }
+
+    str = current_filename + ' ' + str;
+    str = '\nUsage: ' + str;
+
+    return str;
 }
 
 
@@ -84,7 +146,7 @@ function renderCommandUsage(display, program) {
 
     var command, commandDisplay = [];
 
-    display.push('\nCOMMANDS');
+    display.push('\nSUBCOMMANDS');
 
     for (var command_name in program.commands) {
         command = program.commands[command_name];
@@ -130,7 +192,7 @@ function renderOptionUsage(display, program) {
 }
 
 
-function displayVersion(err, value, program) {
+function displayVersion(value, program) {
 
     var help = program.options.help;
     var display_header = '\n  ' + (help.name ? help.name + ' ' : '') + (help.opts.version ? 'v' + help.opts.version : '') + '\n';
@@ -160,9 +222,6 @@ function renderCommandDetails(command, command_name) {
 
     return str;
 }
-
-
-
 
 
 module.exports = exports = new HelpOption();

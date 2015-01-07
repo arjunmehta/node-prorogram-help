@@ -12,12 +12,15 @@ var help = require('../main');
 //     name: 'multiview'
 // });
 
-prorogram.option('--help', help.set({
-    version: '0.0.3',
-    name: 'multiview'})
-);
+prorogram
+    .command('*', {includeRoot: true})
+    .option('--help', help.set({
+        version: '0.0.3',
+        name: 'multiview',
+        handleError: true
+    }));
 
-prorogram.option('--version', help.version);
+prorogram.required = 'something';
 
 prorogram.option('--optionA', {
     description: "This is option A",
@@ -36,24 +39,24 @@ prorogram.option('--optionB', {
 });
 
 prorogram.option('--optionC', {
-    description: "This is option C"
+    description: "This is option C",
+    optional: 'an optional string'
 });
-
-
 
 var run = prorogram.command('run', {
-    action: function(err, args) {
-        // console.log("run executed", args);
-    }
+    action: function(args, program) {
+        console.log("run executed", args);
+    },
+    required: 'file path'
 });
+
+
 
 run.option('--optionE');
 run.option('--optionF', {
-    action: function(err, value) {
-
-    },
-    required: 'file path'
-}).option('--help', help);
+    required: 'file path',
+    error: help.error
+});
 
 
 prorogram.parse(process.argv);
