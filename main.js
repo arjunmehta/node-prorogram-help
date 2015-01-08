@@ -125,10 +125,8 @@ function errorHandler(err, args) {
 }
 
 function displayVersion(value) {
-
-    console.log("CHECKA CHECKA");
-
     var display_header = '\n  ' + buildCommandInformationString(this.options[help_name]) + '\n';
+    did_output = true;
     console.log(display_header);
 }
 
