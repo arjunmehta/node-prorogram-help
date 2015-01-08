@@ -112,6 +112,9 @@ HelpOption.prototype.displayHelp = function(value, program) {
 
 HelpOption.prototype.errorHandler = function(err, args, program) {
     if (!did_output) {
+
+        // console.log('HELP FLAG', this.flag_name, this.shortcut, args, "PROGRAM::::", program, "THIS::::", this);
+
         if (!args[this.flag_name] && !args[this.shortcut]) console.log('\n' + err);
         this.displayHelp(null, program);
     }

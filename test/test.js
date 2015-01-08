@@ -1,4 +1,4 @@
-var prorogram = require('prorogram');
+var protogram = require('protogram');
 var help = require('../main');
 
 
@@ -12,13 +12,13 @@ help.set({
     name: 'multiview'
 });
 
-prorogram.option('--help', help);
-prorogram.option('--version', help.version);
-prorogram.option('--optionA', {description: "This is option A"});
-prorogram.option('--optionB', {description: "This is option B"});
-prorogram.option('--optionC', {description: "This is option C"});
+protogram.option('--help', help);
+protogram.option('--version', help.version);
+protogram.option('--optionA', {description: "This is option A"});
+protogram.option('--optionB', {description: "This is option B"});
+protogram.option('--optionC', {description: "This is option C"});
 
 
-prorogram.parse(process.argv);
+protogram.parse(process.argv);
 
-// console.log(prorogram);
+// console.log(protogram);

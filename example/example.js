@@ -1,4 +1,4 @@
-var prorogram = require('prorogram');
+var protogram = require('protogram');
 var help = require('../main');
 
 
@@ -12,7 +12,7 @@ var help = require('../main');
 //     name: 'multiview'
 // });
 
-// prorogram
+// protogram
 //     .command('*', {includeRoot: true})
 //     .option('--help', help.set({
 //         version: '0.0.3',
@@ -20,9 +20,17 @@ var help = require('../main');
 //         handleError: true
 //     }));
 
-prorogram.required = 'something';
+protogram
+    .option('--help', help.set({
+        version: '0.0.3',
+        name: 'multiview',
+        handleError: true
+    }));
 
-prorogram.option('--optionA', {
+
+protogram.required = 'something';
+
+protogram.option('--optionA', {
     description: "This is option A",
     required: 'a value',
     action: function(err, value) {
@@ -30,7 +38,7 @@ prorogram.option('--optionA', {
     }
 });
 
-prorogram.option('--optionB', {
+protogram.option('--optionB', {
     description: "This is option B",
     optional: 'a number',
     action: function(err, value) {
@@ -38,12 +46,12 @@ prorogram.option('--optionB', {
     }
 });
 
-prorogram.option('--optionC', {
+protogram.option('--optionC', {
     description: "This is option C",
     optional: 'an optional string'
 });
 
-var run = prorogram.command('run', {
+var run = protogram.command('run', {
     action: function(args, program) {
         console.log("run executed", args, program.flagged);
     },
@@ -60,8 +68,8 @@ run.option('--help', help.set({
 run.option('--optionE');
 run.option('--optionF', {
     required: 'file path',
-    error: help.error
+    // error: help.error
 });
 
 
-prorogram.parse(process.argv);
+protogram.parse(process.argv);
