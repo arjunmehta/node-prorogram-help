@@ -5,6 +5,8 @@ var current_path = path.dirname(require.main.filename),
     current_filename = path.basename(process.argv[1], '.js'),
     pjson, did_output = false;
 
+var help_name = 'help';
+
 
 try {
     pjson = require(current_path + '/package.json');
@@ -19,20 +21,22 @@ function HelpOption(opts) {
     this.opts = opts;
 
     this.description = opts.description || 'Display usage information';
-    this.action = opts.action || this.displayHelp;
-    this.error = opts.error || this.errorHandler;
+    this.action = opts.action || displayHelp;
+    this.error = opts.error || errorHandler;
     this.shortcut = opts.shortcut || '-h';
 
     this.opts.version = opts.version || pjson ? pjson.version : null;
     this.opts.name = opts.name || pjson ? pjson.name : null;
     this.opts.handleError = opts.handleError || false;
 
-    this.added = function(program, flag) {
+    this.added = function(flag) {
 
-        // console.log('helpFlag', helpFlag);
+        help_name = flag.flag_name;
+
+        // 'this' becomes the command
 
         if (helpFlag.opts.version) {
-            program.option('--version', {
+            this.option('--version', {
                 shortcut: '-V',
                 description: 'Display current version',
                 action: displayVersion
@@ -40,10 +44,7 @@ function HelpOption(opts) {
         }
 
         if (helpFlag.opts.handleError === true) {
-            program.opts.error = function(err, value, program) {
-                helpFlag.error(err, value, program);
-            };
-            // console.log("TRYING TO HANDLE THE ERROR", program.opts);
+            this.opts.error = errorHandler;
         }
     };
 
@@ -92,34 +93,49 @@ HelpOption.prototype.set = function(opts) {
 };
 
 
-HelpOption.prototype.displayHelp = function(value, program) {
+function displayHelp(value) {
 
-    var display = [];
+    var display = [],
+        help = this.options[help_name];
 
-    if (program.parent_command === undefined) {
-        display.push('\n' + (this.name ? this.name + ' ' : '') + (this.opts.version ? 'v' + this.opts.version : ''));
+    if (this.parent_command === undefined) {
+        display.push('\n' + buildCommandInformationString(help));
     }
 
-    display.push(buildUsageString(program));
+    display.push(buildUsageString(this));
 
-    if (Object.keys(program.options).length > 0) display.push(renderOptionUsage(display, program));
-    if (Object.keys(program.commands).length > 0) display.push(renderCommandUsage(display, program));
+    if (Object.keys(this.options).length > 0) display.push(renderOptionUsage(display, this));
+    if (Object.keys(this.commands).length > 0) display.push(renderCommandUsage(display, this));
 
     console.log(display.join('\n') + '\n');
     did_output = true;
-};
+}
 
 
-HelpOption.prototype.errorHandler = function(err, args, program) {
+function errorHandler(err, args) {
+
+    var help = this.options[help_name];
+
     if (!did_output) {
-
-        // console.log('HELP FLAG', this.flag_name, this.shortcut, args, "PROGRAM::::", program, "THIS::::", this);
-
-        if (!args[this.flag_name] && !args[this.shortcut]) console.log('\n' + err);
-        this.displayHelp(null, program);
+        if (!args[help.flag_name] && !args[help.shortcut]) {
+            console.log('\n' + err);
+        }
+        displayHelp.call(this, null);
     }
-};
+}
 
+function displayVersion(value) {
+
+    console.log("CHECKA CHECKA");
+
+    var display_header = '\n  ' + buildCommandInformationString(this.options[help_name]) + '\n';
+    console.log(display_header);
+}
+
+
+function buildCommandInformationString(help) {
+    return (help.name ? help.name + ' ' : '') + (help.opts.version ? 'v' + help.opts.version : '');
+}
 
 function buildUsageString(program) {
 
@@ -131,7 +147,9 @@ function buildUsageString(program) {
         str += '[' + program.optional + '] ';
     }
 
-    if (Object.keys(program.options).length > 0) str += '[options]';
+    if (Object.keys(program.options).length > 0) {
+        str += '[options]';
+    }
 
     while (program.parent_command !== undefined) {
         str = program.command_name + ' ' + str;
@@ -140,6 +158,28 @@ function buildUsageString(program) {
 
     str = current_filename + ' ' + str;
     str = '\nUsage: ' + str;
+
+    return str;
+}
+
+function buildFlagDetails(flag, flag_name) {
+
+    var str = '';
+
+    str += flag.shortcut ? '-' + flag.shortcut + ', ' : '    ';
+    str += '--' + flag_name;
+    str += ' ' + (flag.required ? '<' + flag.required + '> ' : (flag.optional ? '[' + flag.optional + '] ' : ' '));
+
+    return str;
+}
+
+function buildCommandDetails(command, command_name) {
+
+    var str = '';
+
+    str += command_name;
+    str += command.alias ? '|' + command.alias : '';
+    str += ' ' + (command.required ? '<' + command.required + '> ' : (command.optional ? '[' + command.optional + '] ' : ' '));
 
     return str;
 }
@@ -154,7 +194,7 @@ function renderCommandUsage(display, program) {
     for (var command_name in program.commands) {
         command = program.commands[command_name];
         commandDisplay.push({
-            command: renderCommandDetails(command, command_name),
+            command: buildCommandDetails(command, command_name),
             description: command.description
         });
     }
@@ -179,7 +219,7 @@ function renderOptionUsage(display, program) {
     for (var flag_name in program.options) {
         flag = program.options[flag_name];
         optionDisplay.push({
-            flag: renderFlagDetails(flag, flag_name),
+            flag: buildFlagDetails(flag, flag_name),
             description: flag.description
         });
     }
@@ -193,38 +233,5 @@ function renderOptionUsage(display, program) {
         }
     });
 }
-
-
-function displayVersion(value, program) {
-
-    var help = program.options.help;
-    var display_header = '\n  ' + (help.name ? help.name + ' ' : '') + (help.opts.version ? 'v' + help.opts.version : '') + '\n';
-
-    console.log(display_header);
-}
-
-
-function renderFlagDetails(flag, flag_name) {
-
-    var str = '';
-
-    str += flag.shortcut ? '-' + flag.shortcut + ', ' : '    ';
-    str += '--' + flag_name;
-    str += ' ' + (flag.required ? '<' + flag.required + '> ' : (flag.optional ? '[' + flag.optional + '] ' : ' '));
-
-    return str;
-}
-
-function renderCommandDetails(command, command_name) {
-
-    var str = '';
-
-    str += command_name;
-    str += command.alias ? '|' + command.alias : '';
-    str += ' ' + (command.required ? '<' + command.required + '> ' : (command.optional ? '[' + command.optional + '] ' : ' '));
-
-    return str;
-}
-
 
 module.exports = exports = new HelpOption();

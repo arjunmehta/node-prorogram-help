@@ -1,4 +1,4 @@
-var protogram = require('protogram');
+var protogram = require('protogram').create();
 var help = require('../main');
 
 
@@ -20,40 +20,44 @@ var help = require('../main');
 //         handleError: true
 //     }));
 
+
 protogram
     .option('--help', help.set({
+        shortcut: '-H',
         version: '0.0.3',
         name: 'multiview',
         handleError: true
     }));
 
-
 protogram.required = 'something';
 
-protogram.option('--optionA', {
-    description: "This is option A",
-    required: 'a value',
-    action: function(err, value) {
-        console.log("option A selected");
-    }
-});
+protogram
+    .option('--optionA', {
+        description: "This is option A",
+        required: 'a value',
+        action: function(value) {
+            console.log("option A selected");
+        }
+    });
 
-protogram.option('--optionB', {
-    description: "This is option B",
-    optional: 'a number',
-    action: function(err, value) {
+protogram
+    .option('--optionB', {
+        description: "This is option B",
+        optional: 'a number',
+        action: function(value) {
 
-    }
-});
+        }
+    });
 
-protogram.option('--optionC', {
-    description: "This is option C",
-    optional: 'an optional string'
-});
+protogram
+    .option('--optionC', {
+        description: "This is option C",
+        optional: 'an optional string'
+    });
 
 var run = protogram.command('run', {
-    action: function(args, program) {
-        console.log("run executed", args, program.flagged);
+    action: function(args, flags) {
+        console.log("run executed", args, flags);
     },
     required: 'file path'
 });
