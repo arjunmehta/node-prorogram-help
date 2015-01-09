@@ -1,8 +1,6 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 
-var diff = require('diff');
-
 var protogram = require('protogram');
 var help = require('../main');
 
