@@ -199,7 +199,7 @@ function renderCommandUsage(display, program) {
 
     return columnify(commandDisplay, {
         columnSplitter: '  ',
-        minWidth: 40,
+        minWidth: 30,
         showHeaders: false,
         dataTransform: function(item) {
             return ' ' + item;
@@ -210,7 +210,6 @@ function renderCommandUsage(display, program) {
 function renderOptionUsage(display, program) {
 
     var flag, optionDisplay = [];
-
 
     display.push('\nOPTIONS');
 
@@ -224,7 +223,7 @@ function renderOptionUsage(display, program) {
 
     return columnify(optionDisplay, {
         columnSplitter: '  ',
-        minWidth: 40,
+        minWidth: 30,
         showHeaders: false,
         dataTransform: function(item) {
             return ' ' + item;

@@ -1,37 +1,31 @@
-var protogram = require('protogram').create();
+var program = require('protogram').create();
 var help = require('../main');
 
 
 // help.version = '0.3.0-beta';
-// help.name = 'Prorogram Help Example';
+// help.name = 'Protogram Help Example';
+// help.handleError = true;
 
-// // or
+// OR
 
 // help.set({
 //     version: '0.0.3',
-//     name: 'multiview'
+//     name: 'Protogram Help Example',
+//     handleError: true
 // });
 
-// protogram
-//     .command('*', {includeRoot: true})
-//     .option('--help', help.set({
-//         version: '0.0.3',
-//         name: 'multiview',
-//         handleError: true
-//     }));
 
-
-protogram
+program
+    .command('*', { includeRoot: true })
     .option('--help', help.set({
-        shortcut: '-H',
         version: '0.0.3',
-        name: 'multiview',
+        name: 'Protogram Help Example',
         handleError: true
     }));
 
-protogram.required = 'something';
+// Your Program Here
 
-protogram
+program
     .option('--optionA', {
         description: "This is option A",
         required: 'a value',
@@ -40,40 +34,31 @@ protogram
         }
     });
 
-protogram
+program
     .option('--optionB', {
         description: "This is option B",
         optional: 'a number',
-        action: function(value) {
-
-        }
+        action: function(value) { }
     });
 
-protogram
+program
     .option('--optionC', {
         description: "This is option C",
         optional: 'an optional string'
     });
 
-var run = protogram.command('run', {
+
+var run = program.command('run', {
     action: function(args, flags) {
         console.log("run executed", args, flags);
     },
     required: 'file path'
 });
 
-
-run.option('--help', help.set({
-    version: '0.0.3',
-    name: 'multiview',
-    handleError: true
-}));
-
 run.option('--optionE');
 run.option('--optionF', {
-    required: 'file path',
-    // error: help.error
+    required: 'option value',
 });
 
 
-protogram.parse(process.argv);
+program.parse(process.argv);
