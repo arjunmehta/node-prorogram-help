@@ -1,101 +1,109 @@
+var fs = require('fs');
+var exec = require('child_process').exec;
+
+var diff = require('diff');
+
 var protogram = require('protogram');
 var help = require('../main');
 
+exports['Test Root with -h'] = function(test) {
 
+    var expectedOutput = fs.readFileSync(__dirname + '/root-with-h.txt', 'utf8');
 
-var fake_argv = [
-        "node",
-        "/Users/arjun/Working/node-protogram/example/example.js",
-        "another",
-        "--number",
-        "297261",
-        "-t",
-        "something",
-        "-x",
-        "something longer than just 1 word",
-        "-a",
-        "-e",
-        "[",
-        "subcontext",
-        "here",
-        "-w",
-        "another",
-        "-a",
-        "something else",
-        "-b",
-        "276287",
-        "]"
-    ];
+    test.expect(1);
 
-
-help.set({
-    version: '0.0.3',
-    name: 'multiview'
-});
-
-protogram.option('--help', help);
-protogram.option('--version', help.version);
-protogram.option('--optionA', {description: "This is option A"});
-protogram.option('--optionB', {description: "This is option B"});
-protogram.option('--optionC', {description: "This is option C"});
-
-
-protogram.parse(process.argv);
-
-
-
-
-exports['Call Action and Halt on Error'] = function(test) {
-
-    var expected = 2;
-    test.expect(expected);
-
-    var new_protogram = protogram.create({
-            haltOnError: true,
-            bubbleUp: true,
-            required: 'command',
-            action: function(args, flags) {
-                test.equal(args.length, 0);
-                testDone();
-            }
-        }),
-        executed = 0,
-        fake_argv = [
-            "node",
-            "/Users/arjun/Working/node-protogram/example/example.js",
-            "win",
-            "--win",
-            "297261"
-        ];
-
-    new_protogram.command('win', {
-        required: 'another value',
-        action: function(args, flags) {
-            if (flags) {
-                test.equal(false, true); // force fail
-            }
-            test.equal(false, true); // force fail
-        },
-        error: function(err, args) {
-            test.equal(JSON.stringify(err.message), JSON.stringify((new Error('Required argument <another value> missing for command: \'win\'').message)));
-            testDone();
-        }
-    }).option('--win', {
-        action: function(value) {
-            test.equal(false, true); // force fail
-        }
+    exec('node ' + __dirname + '/testCase.js -h', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
     });
+};
 
-    new_protogram.command('test');
 
-    new_protogram.parse(fake_argv);
+exports['Test Root without Required Option Value'] = function(test) {
 
-    function testDone() {
-        executed++;
-        if (executed == expected) {
-            test.done();
-        }
-    }
+    var expectedOutput = fs.readFileSync(__dirname + '/root-without-requiredopt.txt', 'utf8');
+
+    test.expect(1);
+
+    exec('node ' + __dirname + '/testCase.js -o', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
+    });
+};
+
+
+exports['Subcommand with Required Arg and Option with Missing Required'] = function(test) {
+
+    var expectedOutput = fs.readFileSync(__dirname + '/run-with-requiredarg-O.txt', 'utf8');
+
+    test.expect(1);
+
+    exec('node ' + __dirname + '/testCase.js run ajh -O', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
+    });
+};
+
+exports['Subcommand Version Info'] = function(test) {
+
+    var expectedOutput = fs.readFileSync(__dirname + '/run-with-V.txt', 'utf8');
+
+    test.expect(1);
+
+    exec('node ' + __dirname + '/testCase.js run -V', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
+    });
+};
+
+exports['Main Version Info'] = function(test) {
+
+    var expectedOutput = fs.readFileSync(__dirname + '/run-with-version.txt', 'utf8');
+
+    test.expect(1);
+
+    exec('node ' + __dirname + '/testCase.js --version', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
+    });
+};
+
+exports['Subcommand without Required Arg but with -h'] = function(test) {
+
+    var expectedOutput = fs.readFileSync(__dirname + '/run-without-arg-with-h.txt', 'utf8');
+
+    test.expect(1);
+
+    exec('node ' + __dirname + '/testCase.js run -h', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
+    });
+};
+
+exports['Subcommand without Required Arg'] = function(test) {
+
+    var expectedOutput = fs.readFileSync(__dirname + '/run-without-arg.txt', 'utf8');
+
+    test.expect(1);
+
+    exec('node ' + __dirname + '/testCase.js run', {
+        encoding: 'utf8'
+    }, function(error, stdout, stderr) {
+        test.equal(expectedOutput, stdout);
+        test.done();
+    });
 };
 
 exports['tearDown'] = function(done) {

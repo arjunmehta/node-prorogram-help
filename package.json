@@ -4,7 +4,7 @@
   "description": "auto generate usage info when using the protogram module",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodeunit test/test.js"
   },
   "repository": {
     "type": "git",
@@ -27,10 +27,12 @@
   },
   "homepage": "https://github.com/arjunmehta/node-protogram-help",
   "dependencies": {
-    "columnify": "~1.3.2",
+    "columnify": "~1.3.2",    
     "pkginfo": "~0.3.0"
   },
   "devDependencies": {
+    "nodeunit": "~0.8.8",
+    "diff": "~1.2.1",
     "protogram": "arjunmehta/node-protogram"
   }
 }
