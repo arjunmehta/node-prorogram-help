@@ -1,6 +1,9 @@
 protogram-help
 ===================
 
+[![Build Status](https://travis-ci.org/arjunmehta/node-protogram-help.svg?branch=master)](https://travis-ci.org/arjunmehta/node-protogram-help)
+
+
 A simple to use, help module to auto generate usage info when using the [protogram](https://github.com/arjunmehta/node-protogram) module for node.js.
 
 ## Installation
