@@ -33,6 +33,6 @@
   "devDependencies": {
     "nodeunit": "~0.8.8",
     "diff": "~1.2.1",
-    "protogram": "arjunmehta/node-protogram"
+    "protogram": "~1.1.0"
   }
 }

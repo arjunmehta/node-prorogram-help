@@ -97,4 +97,3 @@ help.handleError = true;
 
 The MIT License (MIT)
 Copyright (c) 2014 Arjun Mehta
-
