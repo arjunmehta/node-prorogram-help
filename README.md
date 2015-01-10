@@ -9,7 +9,7 @@ A simple to use, help module to auto generate usage info when using the [protogr
 ## Installation
 
 ```bash
-npm install protogram-help
+npm install --save protogram-help
 ```
 
 ## Basic Usage
@@ -39,7 +39,7 @@ program
     .option('--help', help);
 ```
 
-Done.
+### Done.
 
 
 ## API

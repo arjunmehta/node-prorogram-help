@@ -1,6 +1,6 @@
 {
   "name": "protogram-help",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Auto-generate program usage info when using the protogram module",
   "main": "main.js",
   "scripts": {
